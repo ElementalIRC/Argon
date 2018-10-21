@@ -6,7 +6,7 @@
             <ul>
                 <li><a class="channel-link">#desmond</a></li>
                 <li><a class="channel-link">#smf</a></li>
-                <li><a class="channel-link">##php</a></li>
+                <li class="active"><a class="channel-link">##php</a></li>
                 <li><a class="channel-link">#laravel</a></li>
             </ul>
         </div>
@@ -55,44 +55,10 @@ export default {
 
 <style lang="scss">
 @import './css/main.scss';
-$sidebar-width: 175px;
-$spacing: 8px;
+@import './css/mixins.scss';
+@import './css/variables.scss';
 
-::-webkit-scrollbar-button {
-    display: none;
-}
-::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 8px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
-    border-radius: 8px;
-}
-::-webkit-scrollbar-track {
-    background-color: #333;
-}
-::-webkit-scrollbar{
-    width: 6px;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-}
-
-ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-li {
-    margin-left: $spacing;
-}
-.channel-link, .channel-user {
-    color: #eee;
-    text-decoration: none;
-}
+@include scrollbar();
 
 #sidebar {
     position: absolute;
@@ -110,6 +76,21 @@ li {
 
     background: #333;
     color: #eee;
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            margin-left: $spacing;
+
+            .channel-link, .channel-user {
+                color: #eee;
+                text-decoration: none;
+            }
+        }
+    }
 
     #servers {
         margin-bottom: $spacing;
