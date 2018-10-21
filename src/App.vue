@@ -10,18 +10,15 @@
                 <li><a class="channel-link">#laravel</a></li>
             </ul>
         </div>
-        <div id="direct-messages">
-            <strong>Direct Messages</strong>
-            <ul>
-                <li><a class="channel-user">Antes</a></li>
-                <li>
-                    <a class="channel-user badge" data-badge="2">NanoSector</a>
-                </li>
-            </ul>
-        </div>
         <div id="users">
             <strong>Channel Users</strong>
             <ul>
+                <li>
+                    <i class="fas fa-microphone-alt"></i>
+                    <a class="channel-user badge" data-badge="2">GigaWatt</a>
+                </li>
+                <li><a class="channel-user badge" data-badge="1">albertlast</a></li>
+                <hr>
                 <li>
                     <i class="fas fa-crown"></i>
                     <a class="channel-user">Chanserv</a>
@@ -30,11 +27,6 @@
                     <i class="fas fa-crown"></i>
                     <a class="channel-user">Sigyn</a>
                 </li>
-                <li>
-                    <i class="fas fa-microphone-alt"></i>
-                    <a class="channel-user">GigaWatt</a>
-                </li>
-                <li><a class="channel-user">albertlast</a></li>
                 <li><a class="channel-user">db``</a></li>
                 <li><a class="channel-user">Dragon092</a></li>
                 <li><a class="channel-user">eichiro</a></li>
@@ -103,18 +95,24 @@ li {
 }
 
 #sidebar {
-    background: #333;
-    color: #eee;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
+    
     width: $sidebar-width;
     padding: $spacing;
-    
-    #servers, #direct-messages, #users {
-        height: 33.33%;
-        overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: auto;
+
+    background: #333;
+    color: #eee;
+
+    #servers {
+        margin-bottom: $spacing;
     }
 }
 
