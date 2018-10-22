@@ -1,6 +1,6 @@
 <template>
     <div id="content">
-        <div id="messages">
+        <div id="messages" ref="messages">
             <Message
                 v-for="message in messages"
                 :key="message.id"
@@ -10,12 +10,12 @@
                 :message="message.message"
             />
         </div>
-        <div id="post-form">
+        <form id="post-form" v-on:submit.prevent="submitMessage">
             <div class="input-group">
-                <input type="text" class="form-input" placeholder="Say something..">
+                <input v-model="messageInput" type="text" class="form-input" placeholder="Say something..">
                 <input type="submit" class="btn btn-primary" value="Post">
             </div>
-        </div>
+        </form>
     </div>
 </template>
 
@@ -31,6 +31,7 @@ export default {
     props: ['nick'],
     data() {
         return {
+            messageInput: '',
             messages: [
                 {
                     id: 1,
@@ -70,7 +71,24 @@ export default {
             ]
         }
     },
-    mounted() {
+    methods: {
+        submitMessage() {
+            const date = new Date();
+            const lastMessage = this.messages[this.messages.length-1];
+            
+            this.messages.push({
+                id: lastMessage.id + 1,
+                nick: this.nick,
+                poster: this.nick,
+                timestamp: date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds(),
+                message: this.messageInput
+            });
+            this.messageInput = null;
+
+            this.$nextTick(() => {
+                this.$refs.messages.scrollTop = this.$refs.messages.scrollHeight;
+            });
+        }
     }
 }
 </script>
