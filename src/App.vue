@@ -101,17 +101,4 @@ export default {
         margin-bottom: $spacing;
     }
 }
-
-#content {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: $sidebar-width;
-    padding: $spacing;
-}
-
-.message {
-
-}
 </style>

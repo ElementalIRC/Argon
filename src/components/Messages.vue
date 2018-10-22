@@ -10,6 +10,13 @@
                 :message="message.message"
             />
         </div>
+        <div class="empty">
+            <div class="empty-icon">
+                <i  class="far fa-comments"></i>
+            </div>
+            <p class="empty-title h5">No messages yet</p>
+            <p class="empty-subtitle">Try posting one, or wait for someone else to say something.</p>
+        </div>
         <form id="post-form" v-on:submit.prevent="submitMessage">
             <div class="input-group">
                 <input v-model="messageInput" type="text" class="form-input" placeholder="Say something..">
@@ -32,50 +39,14 @@ export default {
     data() {
         return {
             messageInput: '',
-            messages: [
-                {
-                    id: 1,
-                    nick: 'TehCraw',
-                    poster: 'Gwenwyfar',
-                    timestamp: '12:34:56',
-                    message: 'Out for dinner.'
-                },
-                {
-                    id: 2,
-                    nick: 'TehCraw',
-                    poster: 'TehCraw',
-                    timestamp: '12:34:56',
-                    message: 'See ya later, Gwenwyfar.'
-                },
-                {
-                    id: 3,
-                    nick: 'TehCraw',
-                    poster: 'Oldiesmann',
-                    timestamp: '12:34:56',
-                    message: 'Oldiesmann slaps TehCraw with an oven mitt.'
-                },
-                {
-                    id: 4,
-                    nick: 'TehCraw',
-                    poster: 'TehCraw',
-                    timestamp: '12:34:56',
-                    message: 'I\'ll oven your mitt.'
-                },
-                {
-                    id: 5,
-                    nick: 'TehCraw',
-                    poster: 'Oldiesmann',
-                    timestamp: '12:34:56',
-                    message: 'lol'
-                }
-            ]
+            messages: []
         }
     },
     methods: {
         submitMessage() {
             const date = new Date();
             const lastMessage = this.messages[this.messages.length-1];
-            
+
             this.messages.push({
                 id: lastMessage.id + 1,
                 nick: this.nick,
@@ -98,23 +69,40 @@ export default {
 
 $post-area-height: 54px;
 
-#messages {
+#content {
     position: absolute;
     top: 0;
     right: 0;
-    bottom: $post-area-height;
-    left: 0;
-    overflow: auto;
-}
-
-#post-form {
-    position: absolute;
-    right: 0;
     bottom: 0;
-    left: 0;
-    height: $post-area-height;
+    left: $sidebar-width;
     padding: $spacing;
 
-    border-top: 1px solid #dedede;
+    #messages {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: $post-area-height;
+        left: 0;
+        overflow: auto;
+    }
+
+    #post-form {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: $post-area-height;
+        padding: $spacing;
+
+        border-top: 1px solid #dedede;
+    }
+
+    .empty {
+        background: none;
+
+        .empty-icon {
+            font-size: 32px;
+        }
+    }
 }
 </style>
