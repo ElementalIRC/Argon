@@ -27,7 +27,6 @@
 </template>
 
 <script>
-import md5 from 'md5';
 import Message from './Message.vue';
 
 export default {
