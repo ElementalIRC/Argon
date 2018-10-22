@@ -43,15 +43,11 @@
         </div>
     </div>
     <div id="content">
-        <Message nick="Gwenwyfar" timestamp="17:44:56" message="Out for dinner." />
-        <div class="divider"></div>
-        <Message nick="TehCraw" timestamp="17:45:23" message="See ya later, Gwenwyfar." />
-        <div class="divider"></div>
-        <Message :me="true" nick="Oldiesmann" timestamp="17:52:42" message="Oldiesmann slaps TehCraw with an oven mit." />
-        <div class="divider"></div>
-        <Message nick="TehCraw" timestamp="17:52:23" message="I'll oven your mitt." />
-        <div class="divider"></div>
-        <Message nick="Oldiesmann" timestamp="17:53:35" message="lol" />
+        <Message nick="TehCraw" poster="Gwenwyfar" timestamp="17:44:56" message="Out for dinner." />
+        <Message nick="TehCraw" poster="TehCraw" timestamp="17:45:23" message="See ya later, Gwenwyfar." />
+        <Message nick="TehCraw" poster="Oldiesmann" timestamp="17:52:42" message="Oldiesmann slaps TehCraw with an oven mit." />
+        <Message nick="TehCraw" poster="TehCraw" timestamp="17:52:23" message="I'll oven your mitt." />
+        <Message nick="TehCraw" poster="Oldiesmann" timestamp="17:53:35" message="lol" />
     </div>
   </div>
 </template>
