@@ -18,7 +18,7 @@
                     <a class="channel-user badge" data-badge="2">GigaWatt</a>
                 </li>
                 <li><a class="channel-user badge" data-badge="1">albertlast</a></li>
-                <hr>
+                <div class="divider"></div>
                 <li>
                     <i class="fas fa-crown"></i>
                     <a class="channel-user">Chanserv</a>
@@ -42,12 +42,27 @@
             </ul>
         </div>
     </div>
-    <div id="content">content</div>
+    <div id="content">
+        <Message nick="Gwenwyfar" timestamp="17:44:56" message="Out for dinner." />
+        <div class="divider"></div>
+        <Message nick="TehCraw" timestamp="17:45:23" message="See ya later, Gwenwyfar." />
+        <div class="divider"></div>
+        <Message :me="true" nick="Oldiesmann" timestamp="17:52:42" message="Oldiesmann slaps TehCraw with an oven mit." />
+        <div class="divider"></div>
+        <Message nick="TehCraw" timestamp="17:52:23" message="I'll oven your mitt." />
+        <div class="divider"></div>
+        <Message nick="Oldiesmann" timestamp="17:53:35" message="lol" />
+    </div>
   </div>
 </template>
 
 <script>
+import Message from './components/Message.vue';
+
 export default {
+    components: {
+        Message: Message
+    },
     mounted() {
     }
 }
@@ -104,5 +119,9 @@ export default {
     bottom: 0;
     left: $sidebar-width;
     padding: $spacing;
+}
+
+.message {
+
 }
 </style>

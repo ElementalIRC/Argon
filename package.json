@@ -12,6 +12,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.4.1",
+    "md5": "^2.2.1",
     "sass": "^1.14.2",
     "spectre.css": "^0.5.3",
     "vue": "^2.5.17"
