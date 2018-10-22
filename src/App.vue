@@ -42,7 +42,7 @@
             </ul>
         </div>
     </div>
-    <Messages />
+    <Messages nick="TehCraw" />
   </div>
 </template>
 
@@ -79,7 +79,7 @@ export default {
 
     overflow: auto;
 
-    background: #333;
+    background: $panel-background;
     color: #eee;
 
     ul {

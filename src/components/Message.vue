@@ -40,7 +40,7 @@ export default {
 @import './../css/variables.scss';
 
 .message {
-    padding: $spacing 0;
+    padding: $spacing;
     border-bottom: 1px solid #dedede;
 
     .header {
