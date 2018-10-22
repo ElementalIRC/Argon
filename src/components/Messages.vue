@@ -1,6 +1,6 @@
 <template>
     <div id="content">
-        <div id="messages" ref="messages">
+        <div v-if="messages.length > 0" ref="messages" id="messages">
             <Message
                 v-for="message in messages"
                 :key="message.id"
@@ -10,7 +10,7 @@
                 :message="message.message"
             />
         </div>
-        <div class="empty">
+        <div v-else class="empty">
             <div class="empty-icon">
                 <i  class="far fa-comments"></i>
             </div>
@@ -48,7 +48,7 @@ export default {
             const lastMessage = this.messages[this.messages.length-1];
 
             this.messages.push({
-                id: lastMessage.id + 1,
+                id: lastMessage ? lastMessage.id + 1 : 0,
                 nick: this.nick,
                 poster: this.nick,
                 timestamp: date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds(),
@@ -60,6 +60,9 @@ export default {
                 this.$refs.messages.scrollTop = this.$refs.messages.scrollHeight;
             });
         }
+    },
+    mounted() {
+        console.log(this.messages);
     }
 }
 </script>
