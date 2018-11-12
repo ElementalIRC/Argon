@@ -11,27 +11,50 @@
         </div>
         <div class="body">
             <p v-if="isAction">
-                <strong><i>{{ message }}</i></strong>
+                <strong><i v-html="formattedMessage"></i></strong>
             </p>
-            <p v-else>{{ message }}</p>
+            <p v-else v-html="formattedMessage"></p>
         </div>
     </div>
 </template>
 
 <script>
 import md5 from 'md5';
+import Autolinker from 'autolinker';
+import { shell } from 'electron';
 
 export default {
     name: 'Message',
     props: ['nick', 'timestamp', 'message', 'poster'],
     data() {
         return {
+            formattedMessage: Autolinker.link(this.escape(this.message), {className: 'message-link'}),
             avatarUrl: 'https://www.gravatar.com/avatar/' + md5(this.poster) + '?d=identicon',
             isAction: this.message.includes(this.poster),
             mentioned: this.message.includes(this.nick),
         }
     },
+    methods: {
+        escape(text) {
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    },
     mounted() {
+        // This binds a click listener to the whole page, but filters out links.
+        document.addEventListener('click', event => {
+            if (event.target.classList.contains('message-link')) {
+                event.preventDefault();
+                event.stopPropagation();
+                shell.openExternal(event.target.href);
+            }
+        });
     }
 }
 </script>
