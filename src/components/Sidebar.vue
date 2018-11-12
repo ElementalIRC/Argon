@@ -1,7 +1,12 @@
 <template>
     <div id="sidebar">
+        <form v-on:submit.prevent="addChannel">
+            <div class="form-group">
+                <input v-model="addChannelInput" class="form-input" type="text" placeholder="channel +">
+            </div>
+        </form>
         <div v-if="channels.length > 0">
-            <strong>{{ channel }}</strong>
+            <strong>{{ server }}</strong>
             <ul>
                 <li v-for="channel in channels" :key="channel">
                     <a class="channel-link">{{ channel }}</a>
@@ -24,24 +29,51 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron';
+
 export default {
     name: 'Sidebar',
+    props: ['nick', 'server'],
     data() {
         return {
-            channel: 'irc.freenode.net',
-            channels: [
-                '#desmond', '#smf', '##php', '#laravel'
-            ],
-            dmUsers: [
-                'Antes', 'Gigawatt', 'Gwenwyfar', 'NanoSector'
-            ],
-            users: [
-                'Chanserv', 'Sigyn', 'albertlast',
-                'db``', 'Dragon092', 'eichiro', 'emerson',
-                'Geekologis', 'Gigawatt', 'Gwenwyfar', 'handicraftsman',
-                'ilbelkyr', 'Kissaki', 'kkmic', 'KnownSyntax', 'Madaara_'
-            ]
+            addChannelInput: '',
+            channels: [],
+            dmUsers: [],
+            users: []
         }
+    },
+    methods: {
+        addChannel() {
+            const channel = this.addChannelInput;
+            this.addChannelInput = '';
+
+            if (this.inChannel(channel)) {
+                return;
+            }
+
+            ipcRenderer.send('channel-connection-attempt', channel);
+        },
+        inChannel(channel) {
+            for (let i = 0; i < this.channels.length; i++) {
+                if (channel == this.channels[i]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    },
+    mounted() {
+        ipcRenderer.on('channel-connected', (event, channel, users) => {
+            this.channels.push(channel)
+
+            this.users = [];
+            for (let i = 0; i < users.length; i++) {
+                let user = users[i];
+                this.users.push(user.nick);
+            }
+
+            this.$emit('channel-change', channel);
+        });
     }
 }
 </script>

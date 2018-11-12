@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+const registerEvents = require('./src/irc-events');
 
 let win
   
@@ -11,6 +12,8 @@ function createWindow () {
     else {
         win.loadFile('index.html');
     }
+
+    registerEvents(win);
     
     win.webContents.openDevTools()
     

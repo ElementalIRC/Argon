@@ -1,32 +1,42 @@
 <template>
     <div id="content">
-        <div v-if="messages.length > 0" ref="messages" id="messages">
-            <Message
-                v-for="message in messages"
-                :key="message.id"
-                :nick="nick"
-                :poster="message.poster"
-                :timestamp="message.timestamp"
-                :message="message.message"
-            />
-        </div>
-        <div v-else class="empty">
+        <div v-if="!channel" class="empty">
             <div class="empty-icon">
                 <i  class="far fa-comments"></i>
             </div>
-            <p class="empty-title h5">No messages yet</p>
-            <p class="empty-subtitle">Try posting one, or wait for someone else to say something.</p>
+            <p class="empty-title h5">No Channel Selected</p>
+            <p class="empty-subtitle">Try adding a channel by entering it in the field to the left.</p>
         </div>
-        <form id="post-form" v-on:submit.prevent="submitMessage">
-            <div class="input-group">
-                <input v-model="messageInput" type="text" class="form-input" placeholder="Say something..">
-                <input type="submit" class="btn btn-primary" value="Post">
+        <div v-else>
+            <div v-if="messages.length > 0" ref="messages" id="messages">
+                <Message
+                    v-for="message in messages"
+                    :key="message.id"
+                    :nick="nick"
+                    :poster="message.poster"
+                    :timestamp="message.timestamp"
+                    :message="message.message"
+                />
             </div>
-        </form>
+            <div v-else class="empty">
+                <div class="empty-icon">
+                    <i  class="far fa-comments"></i>
+                </div>
+                <p class="empty-title h5">No messages yet</p>
+                <p class="empty-subtitle">Try posting one, or wait for someone else to say something.</p>
+            </div>
+            <form id="post-form" v-on:submit.prevent="submitMessage">
+                <div class="input-group">
+                    <input v-model="messageInput" type="text" class="form-input" placeholder="Say something..">
+                    <input type="submit" class="btn btn-primary" value="Send">
+                </div>
+            </form>
+        </div>
     </div>
 </template>
 
 <script>
+import { ipcRenderer } from 'electron';
 import Message from './Message.vue';
 
 export default {
@@ -34,7 +44,16 @@ export default {
     components: {
         Message: Message
     },
-    props: ['nick'],
+    props: {
+        nick: {
+            type: String,
+            default: '',
+        },
+        channel: {
+            type: String,
+            default: '',
+        }
+    },
     data() {
         return {
             messageInput: '',
@@ -43,17 +62,21 @@ export default {
     },
     methods: {
         submitMessage() {
+            this.displayMessage(this.nick, this.messageInput);
+            ipcRenderer.send('message-sent', this.nick, this.channel, this.messageInput);
+            this.messageInput = null;
+        },
+        displayMessage(poster, message) {
             const date = new Date();
             const lastMessage = this.messages[this.messages.length-1];
 
             this.messages.push({
                 id: lastMessage ? lastMessage.id + 1 : 0,
                 nick: this.nick,
-                poster: this.nick,
-                timestamp: date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds(),
-                message: this.messageInput
+                poster,
+                timestamp: date.toLocaleTimeString(),
+                message
             });
-            this.messageInput = null;
 
             this.$nextTick(() => {
                 this.$refs.messages.scrollTop = this.$refs.messages.scrollHeight;
@@ -61,7 +84,13 @@ export default {
         }
     },
     mounted() {
-        console.log(this.messages);
+        ipcRenderer.on('message-received', (event, channel, nick, message) => {
+            const currentChannel = this.channel;
+            if (channel.toLowerCase() != currentChannel.toLowerCase()) {
+                return;
+            }
+            this.displayMessage(nick, message);
+        });
     }
 }
 </script>
