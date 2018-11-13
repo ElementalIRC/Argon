@@ -31,7 +31,6 @@ export default {
             connected: false,
             server: '',
             nick: '',
-            channels: [],
             currentChannel: '',
         };
     },
@@ -40,9 +39,6 @@ export default {
             this.connected = true;
             this.server = server;
             this.nick = nick;
-        },
-        addChannel(channel) {
-            this.channels.push(channel);
         },
         changeChannel(channel) {
             this.currentChannel = channel;

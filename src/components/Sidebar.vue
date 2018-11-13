@@ -8,15 +8,18 @@
         <div v-if="channels.length > 0">
             <strong>{{ server }}</strong>
             <ul>
-                <li v-for="channel in channels" :key="channel">
+                <li v-for="channel in channels" :key="channel" v-on:click.prevent="changeChannel(channel)">
                     <a class="channel-link">{{ channel }}</a>
                 </li>
             </ul>
         </div>
-        <div v-if="dmUsers.length > 0">
-            <strong>Direct Messages</strong>
+        <div v-if="conversations.length > 0">
+            <strong>Conversations</strong>
             <ul>
-                <li v-for="user in dmUsers" :key="user"><a class="channel-user">{{ user }}</a></li>
+                <li v-for="user in conversations" :key="user" v-on:click.prevent="changeChannel(user)">
+                    <a class="channel-user">{{ user }}</a>
+                    <label v-if="user in unreadCount" class="label lavel-rounded">{{ unreadCount[user] }}</label>
+                </li>
             </ul>
         </div>
         <div v-if="users.length > 0">
@@ -37,9 +40,11 @@ export default {
     data() {
         return {
             addChannelInput: '',
+            currentChannel: '',
             channels: [],
-            dmUsers: [],
-            users: []
+            conversations: [],
+            users: [],
+            unreadCount: {}
         }
     },
     methods: {
@@ -60,6 +65,11 @@ export default {
                 }
             }
             return false;
+        },
+        changeChannel(channel) {
+            this.currentChannel = channel;
+            this.$emit('channel-change', channel);
+            this.$delete(this.unreadCount, channel);
         }
     },
     mounted() {
@@ -72,7 +82,23 @@ export default {
                 this.users.push(user.nick);
             }
 
-            this.$emit('channel-change', channel);
+            this.changeChannel(channel);
+        });
+
+        ipcRenderer.on('direct-message-received', (event, target, poster, message) => {
+            // Add conversation to list.
+            if (!this.conversations.includes(poster)) {
+                this.conversations.push(poster);
+            }
+
+            // Update alert number.
+            if (this.currentChannel != poster) { // Unless we're already viewing this convo.
+                if (poster in this.unreadCount) {
+                    this.$set(this.unreadCount, poster, this.unreadCount[poster] + 1);
+                } else {
+                    this.$set(this.unreadCount, poster, 1);
+                }
+            }
         });
     }
 }
@@ -110,6 +136,7 @@ export default {
             .channel-link, .channel-user {
                 color: #eee;
                 text-decoration: none;
+                cursor: pointer;
             }
         }
     }
