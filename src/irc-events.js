@@ -2,52 +2,65 @@ const { ipcMain } = require('electron');
 const irc = require('irc-framework');
 const bot = new irc.Client();
 
+let channels = {};
+let ipcConnection = null;
+let serverConnection = {
+    host: '',
+    nick: '',
+};
+
 module.exports = win => {
-    ipcMain.on('server-connection-attempt', (ipcConnected, host, nick) => {
+    ipcMain.on('server-connection-attempt', (event, host, nick) => {
         bot.connect({
             host,
             port: 6667,
             nick,
         });
+        serverConnection.host = host;
+        serverConnection.nick = nick;
+        ipcConnection = event.sender;
+    });
 
-        let channels = {};
+    ipcMain.on('channel-connection-attempt', (event, channelName) => {
+        if (channelName in channels) {
+            return;
+        }
 
-        bot.on('registered', () => {
-            ipcConnected.sender.send('server-connected', host);
+        const channel = bot.channel(channelName);
+        channel.join();
+        channels[channel.name.toLowerCase()] = channel;
 
-            ipcMain.on('channel-connection-attempt', (channelEvent, channelName) => {
-                if (channelName in channels) {
-                    return;
-                }
-
-                const channel = bot.channel(channelName);
-                channel.join();
-                channels[channel.name.toLowerCase()] = channel;
-
-                channel.updateUsers(() => {
-                    channelEvent.sender.send('channel-connected', channelName, channel.users);
-                });
-            });
-
-            bot.on('message', messageEvent => {
-                // PM
-                if (messageEvent.target == nick && messageEvent.type == 'privmsg') {
-                    if (!(messageEvent.nick in channels)) {
-                        channels[messageEvent.nick.toLowerCase()] = bot.channel(messageEvent.nick);
-                    }
-                    ipcConnected.sender.send('direct-message-received', messageEvent.target, messageEvent.nick, messageEvent.message);
-                    return;
-                }
-                
-                // Channel message
-                ipcConnected.sender.send('message-received', messageEvent.type, messageEvent.target, messageEvent.nick, messageEvent.message);
-            });
-
-            ipcMain.on('message-sent', (messageSentEvent, nick, channel, message) => {
-                channel = channels[channel.toLowerCase()];
-                channel.say(message);
-            });
+        channel.updateUsers(() => {
+            ipcConnection.send('channel-connected', channelName, channel.users);
         });
+    });
+
+    ipcMain.on('message-sent', (event, nick, channel, message) => {
+        channel = channels[channel.toLowerCase()];
+        channel.say(message);
+    });
+
+    bot.on('registered', () => {
+        ipcConnection.send('server-connected', serverConnection.host);
+    });
+
+    bot.on('message', event => {
+        const nick = serverConnection.nick;
+        const type = event.type;
+        const target = event.target;
+        const sender = event.nick;
+        const message = event.message;
+
+        if (target == nick && type != 'notice') {
+            if (!(sender.toLowerCase() in channels)) {
+                channels[sender.toLowerCase()] = bot.channel(sender);
+            }
+            ipcConnection.send('direct-message-received', type, target, sender, message);
+            return;
+        }
+        
+        // Channel message
+        ipcConnection.send('message-received', type, target, sender, message);
     });
 };
 

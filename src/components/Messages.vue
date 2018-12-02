@@ -113,16 +113,17 @@ export default {
         },
     },
     mounted() {
-        ipcRenderer.on('message-received', (event, type, channel, nick, message) => {
-            if (type == 'notice') {
-                return; // Eventually put in a notice system.
-            }
+        ipcRenderer.on('message-received', (event, channel, nick, message) => {
             this.addMessage(channel, nick, message);
         });
 
         ipcRenderer.on('direct-message-received', (event, target, poster, message) => {
             this.addChannel(poster);
             this.addMessage(poster, poster, message);
+        });
+
+        ipcRenderer.on('notice-message-received', (event, target, poster, message) => {
+            // TODO: Implement later.
         });
     }
 }
