@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import ServerConnection from '../components/ServerConnection.vue';
-import Sidebar from '../components/Sidebar.vue';
-import Messages from '../components/Messages.vue';
+import ServerConnection from './components/ServerConnection.vue';
+import Sidebar from './components/Sidebar.vue';
+import Messages from './components/Messages.vue';
 
 export default {
     components: {
@@ -48,9 +48,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../css/main.scss';
-@import '../css/mixins.scss';
-@import '../css/variables.scss';
+@import './css/main.scss';
+@import './css/mixins.scss';
+@import './css/variables.scss';
 
 @include scrollbar();
 </style>

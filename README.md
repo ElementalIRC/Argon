@@ -1,15 +1,29 @@
-## Argon
-A modern IRC client.
+# irc
 
-### Installation
+## Project setup
+```
+yarn install
+```
 
-- `yarn`
+### Compiles and hot-reloads for development
+```
+yarn run serve
+```
 
-### Dev Setup
+### Compiles and minifies for production
+```
+yarn run build
+```
 
-After installation, you can run a dev server and start the electron instance. Running on the dev server enables hot module reloading.
+### Run your tests
+```
+yarn run test
+```
 
-- `yarn dev`
-- `yarn start`
+### Lints and fixes files
+```
+yarn run lint
+```
 
-Note, these are two separate processes that run indefinitely, so you'll have to run them in two terminals.
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

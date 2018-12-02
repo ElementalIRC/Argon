@@ -1,17 +1,12 @@
 const { app, BrowserWindow } = require('electron')
-const registerEvents = require('./src/irc-events');
+const registerEvents = require('./irc-events');
 
 let win
   
 function createWindow () {
     win = new BrowserWindow({ width: 1000, height: 800 })
 
-    if (process.env.NODE_ENV == 'development') {
-        win.loadURL('http://localhost:8080');
-    }
-    else {
-        win.loadFile('index.html');
-    }
+    win.loadURL('http://localhost:8080');
 
     registerEvents(win);
     
