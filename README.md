@@ -1,15 +1,22 @@
-## Argon
-A modern IRC client.
+# ElementalIRC - Argon
+A modern irc client based on Electron.
 
-### Installation
+## Project setup
+```
+yarn install
+```
 
-- `yarn`
+### Compiles and hot-reloads for development
+```
+yarn run serve
+```
 
-### Dev Setup
+### Compiles and minifies for production
+```
+yarn run build
+```
 
-After installation, you can run a dev server and start the electron instance. Running on the dev server enables hot module reloading.
-
-- `yarn dev`
-- `yarn start`
-
-Note, these are two separate processes that run indefinitely, so you'll have to run them in two terminals.
+### Start Electron in dev mode.
+```
+yarn run start
+```

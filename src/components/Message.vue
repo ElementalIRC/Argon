@@ -19,13 +19,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import md5 from 'md5';
 import Autolinker from 'autolinker';
 import { shell } from 'electron';
 
 export default {
     name: 'Message',
-    props: ['nick', 'timestamp', 'message', 'poster'],
+    props: ['timestamp', 'message', 'poster'],
     data() {
         return {
             formattedMessage: Autolinker.link(this.escape(this.message), {className: 'message-link'}),
@@ -33,6 +34,9 @@ export default {
             isAction: this.message.includes(this.poster),
             mentioned: this.message.includes(this.nick),
         }
+    },
+    computed: {
+        ...mapGetters(['nick'])
     },
     methods: {
         escape(text) {

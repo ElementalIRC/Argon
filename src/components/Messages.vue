@@ -10,9 +10,8 @@
         <div v-else>
             <div v-if="channelHasMessages" ref="messages" id="messages">
                 <Message
-                    v-for="(message, index) in messages"
-                    :key="index"
-                    :nick="nick"
+                    v-for="message in currentChannelMessages"
+                    :key="message.id"
                     :poster="message.poster"
                     :timestamp="message.timestamp"
                     :message="message.message"
@@ -22,8 +21,8 @@
                 <div class="empty-icon">
                     <i  class="far fa-comments"></i>
                 </div>
-                <p class="empty-title h5">No messages yet</p>
-                <p class="empty-subtitle">Try posting one, or wait for someone else to say something.</p>
+                <p class="empty-title h5">{{ this.currentChannel }}</p>
+                <p class="empty-subtitle">No messages yet! Try posting one, or wait for someone else to say something.</p>
             </div>
             <form id="post-form" v-on:submit.prevent="submitMessage">
                 <div class="input-group">
@@ -37,22 +36,14 @@
 
 <script>
 import { ipcRenderer } from 'electron';
+import { mapGetters, mapActions } from 'vuex';
+import md5 from 'md5';
 import Message from './Message.vue';
 
 export default {
     name: 'Messages',
     components: {
         Message: Message
-    },
-    props: {
-        nick: {
-            type: String,
-            default: '',
-        },
-        channel: {
-            type: String,
-            default: '',
-        }
     },
     data() {
         return {
@@ -61,50 +52,33 @@ export default {
         }
     },
     computed: {
+        ...mapGetters([
+            'nick',
+            'currentChannel',
+            'currentChannelMessages'
+        ]),
         isInChannel() {
-            return this.channel != '' && this.channel != null;
+            return this.currentChannel != '' && this.currentChannel != null;
         },
         channelHasMessages() {
             if (!this.isInChannel) {
                 return false;
             }
-            return this.channelMessages[this.channel].length > 0;
+            return this.$store.getters.currentChannelMessages.length > 0;
         },
-        messages() {
-            return this.channelMessages[this.channel];
-        }
-    },
-    watch: {
-        // Create a new messages array when a channel is joined.
-        channel(newChannel, oldChannel) {
-            this.addChannel(newChannel);
-        }
     },
     methods: {
+        ...mapActions(['addMessage']),
         submitMessage() {
-            this.addMessage(this.channel, this.nick, this.messageInput);
-            ipcRenderer.send('message-sent', this.nick, this.channel, this.messageInput);
-            this.messageInput = null;
-        },
-        addChannel(channel) {
-            if (channel == '' || channel in this.channelMessages) {
-                return;
-            }
-            this.$set(this.channelMessages, channel, []);
-        },
-        addMessage(channel, poster, message) {
-            this.addChannel(channel);
-            // Append the message to the channel.
-            this.channelMessages[channel].push({
-                nick: this.nick,
-                poster,
-                timestamp: new Date().toLocaleTimeString(),
-                message
+            this.addMessage({
+                id: md5(`${this.currentChannel}-${this.nick}-${this.messageInput}-${new Date().getTime()}`),
+                channel: this.currentChannel,
+                poster: this.nick,
+                message: this.messageInput
             });
-            // If posted in current channel, scroll down.
-            if (channel.toLowerCase() == this.channel.toLowerCase()) {
-                this.scrollDown();
-            }
+            ipcRenderer.send('message-sent', this.nick, this.currentChannel, this.messageInput);
+            this.messageInput = null;
+            this.scrollDown();
         },
         scrollDown(poster, message) {
             this.$nextTick(() => {
@@ -113,16 +87,21 @@ export default {
         },
     },
     mounted() {
-        ipcRenderer.on('message-received', (event, type, channel, nick, message) => {
-            if (type == 'notice') {
-                return; // Eventually put in a notice system.
+        ipcRenderer.on('message-received', (event, id, type, channel, poster, message) => {
+            this.addMessage({id, channel, poster, message});
+
+            // If posted in current channel, scroll down.
+            if (channel == this.currentChannel) {
+                this.scrollDown();
             }
-            this.addMessage(channel, nick, message);
         });
 
-        ipcRenderer.on('direct-message-received', (event, target, poster, message) => {
-            this.addChannel(poster);
-            this.addMessage(poster, poster, message);
+        ipcRenderer.on('direct-message-received', (event, id, type, target, poster, message) => {
+            this.addMessage({id, channel: poster, poster, message});
+        });
+
+        ipcRenderer.on('notice-message-received', (event, id, target, poster, message) => {
+            // TODO: Implement later.
         });
     }
 }

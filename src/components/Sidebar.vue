@@ -8,7 +8,12 @@
         <div v-if="channels.length > 0">
             <strong>{{ server }}</strong>
             <ul>
-                <li v-for="channel in channels" :key="channel" v-on:click.prevent="changeChannel(channel)">
+                <li
+                    v-for="channel in channels"
+                    :key="channel"
+                    v-on:click.prevent="joinChannel(channel)"
+                    :class="currentChannel == channel ? 'bg-primary s-rounded' : ''"
+                >
                     <a class="channel-link">{{ channel }}</a>
                 </li>
             </ul>
@@ -16,16 +21,23 @@
         <div v-if="conversations.length > 0">
             <strong>Conversations</strong>
             <ul>
-                <li v-for="user in conversations" :key="user" v-on:click.prevent="changeChannel(user)">
+                <li
+                    v-for="user in conversations"
+                    :key="user"
+                    v-on:click.prevent="joinChannel(user)"
+                    :class="currentChannel == user ? 'bg-primary' : ''"
+                    >
                     <a class="channel-user">{{ user }}</a>
-                    <label v-if="user in unreadCount" class="label lavel-rounded">{{ unreadCount[user] }}</label>
+                    <label v-if="user in unreadCount" class="label label-rounded">{{ unreadCount[user] }}</label>
                 </li>
             </ul>
         </div>
         <div v-if="users.length > 0">
             <strong>Channel Users</strong>
             <ul>
-                <li v-for="user in users" :key="user"><a class="channel-user">{{ user }}</a></li>
+                <li v-for="user in users" :key="user">
+                    <a class="channel-user">{{ user }}</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -33,14 +45,13 @@
 
 <script>
 import { ipcRenderer } from 'electron';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
     name: 'Sidebar',
-    props: ['nick', 'server'],
     data() {
         return {
             addChannelInput: '',
-            currentChannel: '',
             channels: [],
             conversations: [],
             users: [],
@@ -48,6 +59,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions(['changeChannel']),
         addChannel() {
             const channel = this.addChannelInput;
             this.addChannelInput = '';
@@ -66,11 +78,17 @@ export default {
             }
             return false;
         },
-        changeChannel(channel) {
-            this.currentChannel = channel;
-            this.$emit('channel-change', channel);
+        joinChannel(channel) {
+            this.changeChannel(channel);
             this.$delete(this.unreadCount, channel);
         }
+    },
+    computed: {
+        ...mapGetters([
+            'nick',
+            'server',
+            'currentChannel'
+        ])
     },
     mounted() {
         ipcRenderer.on('channel-connected', (event, channel, users) => {
@@ -85,7 +103,7 @@ export default {
             this.changeChannel(channel);
         });
 
-        ipcRenderer.on('direct-message-received', (event, target, poster, message) => {
+        ipcRenderer.on('direct-message-received', (event, id, type, target, poster, message) => {
             // Add conversation to list.
             if (!this.conversations.includes(poster)) {
                 this.conversations.push(poster);
@@ -131,12 +149,17 @@ export default {
         list-style: none;
 
         li {
-            margin-left: $spacing;
-
+            margin: 0.3rem 0;
+            padding-left: $spacing;
+             
             .channel-link, .channel-user {
                 color: #eee;
                 text-decoration: none;
                 cursor: pointer;
+            }
+
+            .label-rounded {
+                float: right;
             }
         }
     }
