@@ -1,5 +1,14 @@
 <template>
     <div>
+        <div id="alerts">
+            <div v-for="(alert, id) in alerts" :key="id" class="toast toast-primary">
+                <button @click.prevent="deleteAlert(id)" class="btn btn-clear float-right"></button>
+                <p>
+                    <strong>{{ alert.sender }}:</strong>
+                    {{ alert.message }}
+                </p>
+            </div>
+        </div>
         <ServerConnection v-if="!connected" />
         <Sidebar v-if="connected" />
         <Messages v-if="connected" />
@@ -8,6 +17,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { ipcRenderer } from 'electron';
 import ServerConnection from './components/ServerConnection.vue';
 import Sidebar from './components/Sidebar.vue';
 import Messages from './components/Messages.vue';
@@ -19,7 +29,10 @@ export default {
         Messages
     },
     data() {
-        return {};
+        return {
+            alerts: {
+            }
+        };
     },
     computed: {
         ...mapGetters([
@@ -29,7 +42,19 @@ export default {
             'currentChannel',
         ])
     },
-    methods: {}
+    methods: {
+        deleteAlert(id) {
+            this.$delete(this.alerts, id);
+        }
+    },
+    mounted() {
+        ipcRenderer.on('notice-message-received', (event, id, type, target, sender, message) => {
+            this.alerts[id] = {sender, message};
+            window.setTimeout(() => {
+                this.deleteAlert(id);
+            }, 10000);
+        });
+    }
 }
 </script>
 
@@ -39,4 +64,18 @@ export default {
 @import './css/variables.scss';
 
 @include scrollbar();
+
+#alerts {
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    right: $spacing;
+    width: 50%;
+
+    .toast {
+        margin: $spacing 0;
+        -webkit-box-shadow: 0 1px 3px 1px #888;
+        box-shadow: 0 1px 3px 1px #888;
+    }
+}
 </style>

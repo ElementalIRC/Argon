@@ -53,8 +53,8 @@ module.exports = win => {
         const message = event.message;
         const id = md5(`${target}-${sender}-${message}-${new Date().getTime()}`);
 
-        if (type == 'notice') {
-            return; // Do something more helpfull with this.
+        if (type == 'notice' && target != nick) {
+            ipcConnection.send('notice-message-received', id, type, target, sender, message);
         }
 
         if (target == nick) {

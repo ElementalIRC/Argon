@@ -98,10 +98,11 @@ export default {
 
         ipcRenderer.on('direct-message-received', (event, id, type, target, poster, message) => {
             this.addMessage({id, channel: poster, poster, message});
-        });
 
-        ipcRenderer.on('notice-message-received', (event, id, target, poster, message) => {
-            // TODO: Implement later.
+            // If posted in current channel, scroll down.
+            if (poster == this.currentChannel) {
+                this.scrollDown();
+            }
         });
     }
 }
