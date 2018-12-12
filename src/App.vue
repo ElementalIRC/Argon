@@ -1,21 +1,13 @@
 <template>
     <div>
-        <ServerConnection v-if="!connected" @server-connected="serverConnected" />
-        <Sidebar
-            v-if="connected"
-            :server="server"
-            :nick="nick"
-            @channel-change="changeChannel"
-        />
-        <Messages
-            v-if="connected"
-            :nick="nick"
-            :channel="currentChannel"
-        />
+        <ServerConnection v-if="!connected" />
+        <Sidebar v-if="connected" />
+        <Messages v-if="connected" />
     </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import ServerConnection from './components/ServerConnection.vue';
 import Sidebar from './components/Sidebar.vue';
 import Messages from './components/Messages.vue';
@@ -27,23 +19,17 @@ export default {
         Messages
     },
     data() {
-        return {
-            connected: false,
-            server: '',
-            nick: '',
-            currentChannel: '',
-        };
+        return {};
     },
-    methods: {
-        serverConnected(server, nick) {
-            this.connected = true;
-            this.server = server;
-            this.nick = nick;
-        },
-        changeChannel(channel) {
-            this.currentChannel = channel;
-        }
-    }
+    computed: {
+        ...mapGetters([
+            'connected',
+            'server',
+            'nick',
+            'currentChannel',
+        ])
+    },
+    methods: {}
 }
 </script>
 

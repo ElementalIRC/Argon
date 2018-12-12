@@ -9,7 +9,7 @@
         <div class="empty-action">
             <form v-on:submit.prevent="connect">
                 <div class="input-group">
-                    <input v-model="nick" :disabled="loading" type="text" class="form-input input-lg" placeholder="Nick Name">
+                    <input v-model="nickInput" :disabled="loading" type="text" class="form-input input-lg" placeholder="Nick Name">
                     <input v-model="serverInput" :disabled="loading" type="text" class="form-input input-lg" placeholder="irc.freenode.net">
                     <input type="submit" :disabled="loading" class="btn btn-primary btn-lg input-group-btn" value="Connect">
                 </div>
@@ -20,27 +20,37 @@
 
 <script>
 import { ipcRenderer } from 'electron';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
     name: 'ServerConnection',
     data() {
         return {
-            connected: false,
-            nick: '',
+            nickInput: '',
             serverInput: 'irc.freenode.net',
             loading: false,
         }
     },
+    computed: {
+        ...mapGetters([
+            'connected',
+            'server',
+        ]),
+    },
     methods: {
+        ...mapMutations([
+            'connectToServer',
+            'changeNick'
+        ]),
         connect() {
             this.loading = true;
-            ipcRenderer.send('server-connection-attempt', this.serverInput, this.nick);
+            ipcRenderer.send('server-connection-attempt', this.serverInput, this.nickInput);
         }
     },
     mounted() {
         ipcRenderer.on('server-connected', event => {
-            this.$emit('server-connected', this.serverInput, this.nick);
-            this.connected = true;
+            this.connectToServer(this.serverInput);
+            this.changeNick(this.nickInput);
             this.loading = false;
         });
     }
