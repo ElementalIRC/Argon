@@ -32,11 +32,11 @@
                 </li>
             </ul>
         </div>
-        <div v-if="users.length > 0">
-            <strong>Channel Users</strong>
+        <div v-if="currentChannelUsers.length > 0">
+            <strong>Channel Users ({{ currentChannelUsers.length }})</strong>
             <ul>
-                <li v-for="user in users" :key="user">
-                    <a class="channel-user">{{ user }}</a>
+                <li v-for="user of currentChannelUsers" :key="user.id">
+                    <a class="channel-user">{{ user.name }}</a>
                 </li>
             </ul>
         </div>
@@ -45,7 +45,7 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 
 export default {
     name: 'Sidebar',
@@ -54,12 +54,12 @@ export default {
             addChannelInput: '',
             channels: [],
             conversations: [],
-            users: [],
             unreadCount: {}
         }
     },
     methods: {
         ...mapActions(['changeChannel']),
+        ...mapMutations(['updateChannelUsers']),
         addChannel() {
             const channel = this.addChannelInput;
             this.addChannelInput = '';
@@ -87,18 +87,15 @@ export default {
         ...mapGetters([
             'nick',
             'server',
-            'currentChannel'
+            'currentChannel',
+            'currentChannelUsers'
         ])
     },
     mounted() {
         ipcRenderer.on('channel-connected', (event, channel, users) => {
             this.channels.push(channel)
 
-            this.users = [];
-            for (let i = 0; i < users.length; i++) {
-                let user = users[i];
-                this.users.push(user.nick);
-            }
+            this.updateChannelUsers({channel, users});
 
             this.changeChannel(channel);
         });
