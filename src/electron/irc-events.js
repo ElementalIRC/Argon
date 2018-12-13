@@ -1,6 +1,7 @@
 const { ipcMain } = require('electron');
 const irc = require('irc-framework');
 const md5 = require('md5');
+const User = require('../User');
 const bot = new irc.Client();
 
 let channels = {};
@@ -32,7 +33,11 @@ module.exports = win => {
         channels[channel.name] = channel;
 
         channel.updateUsers(() => {
-            ipcConnection.send('channel-connected', channelName, channel.users);
+            const users = [];
+            for (user of channel.users) {
+                users.push(new User(user.nick, user.hostname, user.modes));
+            }
+            ipcConnection.send('channel-connected', channelName, users);
         });
     });
 
@@ -69,5 +74,15 @@ module.exports = win => {
         // Channel message
         ipcConnection.send('message-received', id, type, target, sender, message);
     });
+
+    bot.on('join', event => {
+        const user = new User(event.nick, event.hostname, []);
+        ipcConnection.send('user-joined-channel', event.channel, user);
+    });
+
+    bot.on('part', event => {
+        const user = new User(event.nick, event.hostname, []);
+        ipcConnection.send('user-parted-channel', event.channel, user);
+    })
 };
 

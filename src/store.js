@@ -9,19 +9,23 @@ export default new Vuex.Store({
         connected: false,
         server: '',
         nick: '',
+
         currentChannel: '',
         channelMessages: {},
-        channelUsers: {},
         currentChannelMessages: [],
-        currentChannelUsers: []
+        
+        channelUsers: {},
+        currentChannelUsers: {}
     },
     getters: {
         connected: state => state.connected,
         server: state => state.server,
+        nick: state => state.nick,
+
         currentChannel: state => state.currentChannel,
         currentChannelMessages: state => state.currentChannelMessages,
+
         currentChannelUsers: state => state.currentChannelUsers,
-        nick: state => state.nick,
     },
     actions: {
         changeChannel({ commit }, channel) {
@@ -62,18 +66,23 @@ export default new Vuex.Store({
                 message: messageInfo.message
             });
         },
+
         updateChannelUsers(state, info) {
-            const users = [];
+            const users = {};
+
             for (let user of info.users) {
-                users.push({
-                    id: md5(`${user.hostname}${user.nick}`),
-                    hostname: user.hostname,
-                    name: user.nick,
-                    modes: user.modes
-                });
+                users[user.id] = user;
             }
 
             state.channelUsers[info.channel] = users;
+        },
+        addUserToChannel(state, info) {
+            if (info.channel in state.channelUsers) {
+                Vue.set(state.channelUsers[info.channel], info.user.id, info.user);
+            }
+        },
+        removeUserFromChannel(state, info) {
+            Vue.delete(state.channelUsers[info.channel], info.user.id);
         }
     }
 })

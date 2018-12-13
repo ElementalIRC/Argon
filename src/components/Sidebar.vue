@@ -32,11 +32,11 @@
                 </li>
             </ul>
         </div>
-        <div v-if="currentChannelUsers.length > 0">
-            <strong>Channel Users ({{ currentChannelUsers.length }})</strong>
+        <div v-if="channelUserCount > 0">
+            <strong>Channel Users ({{ channelUserCount }})</strong>
             <ul>
-                <li v-for="user of currentChannelUsers" :key="user.id">
-                    <a class="channel-user">{{ user.name }}</a>
+                <li v-for="user in currentChannelUsers" :key="user.id">
+                    <a class="channel-user">{{ user.nick }}</a>
                 </li>
             </ul>
         </div>
@@ -59,7 +59,7 @@ export default {
     },
     methods: {
         ...mapActions(['changeChannel']),
-        ...mapMutations(['updateChannelUsers']),
+        ...mapMutations(['updateChannelUsers', 'addUserToChannel', 'removeUserFromChannel']),
         addChannel() {
             const channel = this.addChannelInput;
             this.addChannelInput = '';
@@ -89,11 +89,16 @@ export default {
             'server',
             'currentChannel',
             'currentChannelUsers'
-        ])
+        ]),
+        channelUserCount() {
+            return Object.getOwnPropertyNames(this.currentChannelUsers).length - 1;
+        }
     },
     mounted() {
         ipcRenderer.on('channel-connected', (event, channel, users) => {
             this.channels.push(channel)
+
+            console.log('channel-join', users);
 
             this.updateChannelUsers({channel, users});
 
@@ -114,6 +119,15 @@ export default {
                     this.$set(this.unreadCount, poster, 1);
                 }
             }
+        });
+
+        ipcRenderer.on('user-joined-channel', (event, channel, user) => {
+            console.log('join', user)
+            this.addUserToChannel({channel, user});
+        });
+
+        ipcRenderer.on('user-parted-channel', (event, channel, user) => {
+            this.removeUserFromChannel({channel, user});
         });
     }
 }
