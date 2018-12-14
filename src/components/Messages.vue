@@ -12,6 +12,8 @@
                 <Message
                     v-for="message in currentChannelMessages"
                     :key="message.id"
+                    :type="message.type"
+                    :isAction="message.isAction"
                     :poster="message.poster"
                     :timestamp="message.timestamp"
                     :message="message.message"
@@ -70,13 +72,18 @@ export default {
     methods: {
         ...mapActions(['addMessage']),
         submitMessage() {
+            const isAction = /^\/me/i.test(this.messageInput);
+            
             this.addMessage({
                 id: md5(`${this.currentChannel}-${this.nick}-${this.messageInput}-${new Date().getTime()}`),
+                type: isAction ? 'action' : 'privmsg',
                 channel: this.currentChannel,
                 poster: this.nick,
-                message: this.messageInput
+                message: isAction ? this.messageInput.replace(/\/me/i, '') : this.messageInput
             });
-            ipcRenderer.send('message-sent', this.nick, this.currentChannel, this.messageInput);
+
+            ipcRenderer.send('message-sent', isAction, this.nick, this.currentChannel, this.messageInput);
+
             this.messageInput = null;
             this.scrollDown();
         },
@@ -88,7 +95,7 @@ export default {
     },
     mounted() {
         ipcRenderer.on('message-received', (event, id, type, channel, poster, message) => {
-            this.addMessage({id, channel, poster, message});
+            this.addMessage({id, type, channel, poster, message});
 
             // If posted in current channel, scroll down.
             if (channel == this.currentChannel) {
@@ -97,7 +104,7 @@ export default {
         });
 
         ipcRenderer.on('direct-message-received', (event, id, type, target, poster, message) => {
-            this.addMessage({id, channel: poster, poster, message});
+            this.addMessage({id, type, channel: poster, poster, message});
 
             // If posted in current channel, scroll down.
             if (poster == this.currentChannel) {

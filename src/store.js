@@ -61,6 +61,8 @@ export default new Vuex.Store({
         appendMessageToChannel(state, messageInfo) {
             state.channelMessages[messageInfo.channel].push({
                 id: messageInfo.id,
+                type: messageInfo.type,
+                isAction: messageInfo.type == 'action',
                 poster: messageInfo.poster,
                 timestamp: new Date().toLocaleTimeString(),
                 message: messageInfo.message

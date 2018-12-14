@@ -41,9 +41,13 @@ module.exports = win => {
         });
     });
 
-    ipcMain.on('message-sent', (event, nick, channel, message) => {
-        channel = channels[channel];
-        channel.say(message);
+    ipcMain.on('message-sent', (event, isAction, nick, target, message) => {
+        const channel = channels[target];
+        if (isAction) {
+            bot.action(target, message.replace(/\/me\s/i, ''));
+        } else {
+            channel.say(message);
+        }
     });
 
     bot.on('registered', () => {
@@ -57,6 +61,11 @@ module.exports = win => {
         const sender = event.nick;
         const message = event.message;
         const id = md5(`${target}-${sender}-${message}-${new Date().getTime()}`);
+
+        // Ignore junk from the server; it's probably not important. ;)
+        if (type == 'notice' && 'from_server' in event && event.from_server == true) {
+            return;
+        }
 
         if (type == 'notice' && target != nick) {
             ipcConnection.send('notice-message-received', id, type, target, sender, message);

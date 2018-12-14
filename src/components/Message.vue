@@ -10,8 +10,8 @@
             </div>
         </div>
         <div class="body">
-            <p v-if="isAction()">
-                <strong><i v-html="formattedMessage"></i></strong>
+            <p v-if="isAction">
+                <strong><i v-html="`${poster} ${formattedMessage}`"></i></strong>
             </p>
             <p v-else v-html="formattedMessage"></p>
         </div>
@@ -26,7 +26,7 @@ import { shell } from 'electron';
 
 export default {
     name: 'Message',
-    props: ['timestamp', 'message', 'poster'],
+    props: ['type', 'isAction', 'timestamp', 'message', 'poster'],
     data() {
         return {
             formattedMessage: Autolinker.link(this.escape(this.message), {className: 'message-link'}),
@@ -50,30 +50,6 @@ export default {
         },
         // This whole thing could be a one-liner if javascript would pull its head out of its
         // butt and have a RegExp.escape() method like EVERY OTHER LANGUAGE! But NOOoooo..
-        isAction() {
-            const message = this.message.split('');
-            const poster = this.poster.split('');
-
-            if (message.length < poster.length) {
-                return false;
-            }
-
-            // Break the poster nick and message into characters and loop over for poster.length
-            // Testing to see if the beginning of the message matches the poster nick.
-            let matching = false;
-            for (let index = 0; index < poster.length; index ++) {
-                let nameCharacter = poster[index];
-                let messageCharacter = message[index];
-                if (nameCharacter === messageCharacter) {
-                    matching = true;
-                } else {
-                    matching = false;
-                    break;
-                }
-            }
-
-            return matching;
-        }
     },
     mounted() {
         // This binds a click listener to the whole page, but filters out links.
