@@ -15,6 +15,7 @@
                     :class="currentChannel == channel ? 'bg-primary s-rounded' : ''"
                 >
                     <a class="channel-link">{{ channel }}</a>
+                    <label v-if="channel in unreadCount" class="label label-rounded">{{ unreadCount[channel] }}</label>
                 </li>
             </ul>
         </div>
@@ -101,6 +102,17 @@ export default {
             this.updateChannelUsers({channel, users});
 
             this.changeChannel(channel);
+        });
+
+        ipcRenderer.on('message-received', (event, id, type, channel, poster, message) => {
+             // Update alert number.
+            if (this.currentChannel != channel) { // Unless we're already viewing this convo.
+                if (channel in this.unreadCount) {
+                    this.$set(this.unreadCount, channel, this.unreadCount[channel] + 1);
+                } else {
+                    this.$set(this.unreadCount, channel, 1);
+                }
+            }            
         });
 
         ipcRenderer.on('direct-message-received', (event, id, type, target, poster, message) => {
