@@ -98,8 +98,6 @@ export default {
         ipcRenderer.on('channel-connected', (event, channel, users) => {
             this.channels.push(channel)
 
-            console.log('channel-join', users);
-
             this.updateChannelUsers({channel, users});
 
             this.changeChannel(channel);
@@ -122,8 +120,10 @@ export default {
         });
 
         ipcRenderer.on('user-joined-channel', (event, channel, user) => {
-            console.log('join', user)
-            this.addUserToChannel({channel, user});
+            // Only channels need a user list.
+            if (/^#/.test(channel)) {
+                this.addUserToChannel({channel, user});
+            }
         });
 
         ipcRenderer.on('user-parted-channel', (event, channel, user) => {

@@ -50,7 +50,7 @@ export default new Vuex.Store({
                 state.channelMessages[channel] = [];
             }
             if (channel != '' && !(channel in state.channelUsers)) {
-                state.channelUsers[channel] = [];
+                state.channelUsers[channel] = {};
             }
         },
         changeChannel(state, channel) {
