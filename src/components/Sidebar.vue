@@ -25,7 +25,7 @@
                 <li
                     v-for="user in conversations"
                     :key="user"
-                    v-on:click.prevent="joinChannel(user)"
+                    @click.prevent="joinChannel(user)"
                     :class="currentChannel == user ? 'bg-primary' : ''"
                     >
                     <a class="channel-user">{{ user }}</a>
@@ -36,7 +36,7 @@
         <div v-if="channelUserCount > 0">
             <strong>Channel Users ({{ channelUserCount }})</strong>
             <ul>
-                <li v-for="user in currentChannelUsers" :key="user.id">
+                <li @click="startConversation(user)" v-for="user in currentChannelUsers" :key="user.id">
                     <a class="channel-user">{{ user.nick }}</a>
                 </li>
             </ul>
@@ -60,7 +60,12 @@ export default {
     },
     methods: {
         ...mapActions(['changeChannel']),
-        ...mapMutations(['updateChannelUsers', 'addUserToChannel', 'removeUserFromChannel']),
+        ...mapMutations([
+            'addChannel',
+            'updateChannelUsers',
+            'addUserToChannel',
+            'removeUserFromChannel'
+        ]),
         addChannel() {
             const channel = this.addChannelInput;
             this.addChannelInput = '';
@@ -82,6 +87,18 @@ export default {
         joinChannel(channel) {
             this.changeChannel(channel);
             this.$delete(this.unreadCount, channel);
+        },
+        startConversation(user) {
+            // Don't start a conversation with yourself, unless you're slightly nuts.
+            if (user.nick == this.nick) {
+                return;
+            }
+
+            this.addChannel(user.nick);
+            this.joinChannel(user.nick);
+            if (!this.conversations.includes(user.nick)) {
+                this.conversations.push(user.nick);
+            }
         }
     },
     computed: {

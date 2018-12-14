@@ -42,6 +42,10 @@ module.exports = win => {
     });
 
     ipcMain.on('message-sent', (event, isAction, nick, target, message) => {
+        if (!(target in channels)) {
+            channels[target] = bot.channel(target);
+        }
+
         const channel = channels[target];
         if (isAction) {
             bot.action(target, message.replace(/\/me\s/i, ''));

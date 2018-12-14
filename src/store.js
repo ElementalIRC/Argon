@@ -68,7 +68,6 @@ export default new Vuex.Store({
                 message: messageInfo.message
             });
         },
-
         updateChannelUsers(state, info) {
             const users = {};
 
