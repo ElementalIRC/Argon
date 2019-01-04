@@ -1,12 +1,12 @@
 {
   "name": "elemental-irc-argon",
-  "description": "A modern IRC client based on electron.",
   "version": "0.1.0",
-  "license": "MPL-2.0",
+  "description": "A modern IRC client based on electron.",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "start": "electron src/electron/index.js"
+    "start": "electron src/electron/index.js",
+    "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
     "autolinker": "^1.8.1",
@@ -19,8 +19,12 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
+    "@vue/cli-plugin-unit-mocha": "^3.2.2",
     "@vue/cli-service": "^3.2.0",
+    "@vue/test-utils": "^1.0.0-beta.20",
+    "chai": "^4.2.0",
     "electron-devtools-installer": "^2.2.4",
+    "mocha": "^5.2.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "vue-template-compiler": "^2.5.17"
@@ -34,5 +38,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "license": "MPL-2.0"
 }
