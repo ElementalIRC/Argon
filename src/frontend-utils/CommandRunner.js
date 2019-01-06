@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
-import Msg from '@/commands/Msg';
 import ArgumentParser from '@/frontend-utils/ArgumentParser';
+import Msg from '@/commands/Msg';
+import Join from '@/commands/Join';
 
 class CommandRunner {
     constructor(ipc) {
@@ -9,6 +10,7 @@ class CommandRunner {
 
         this.commands = [
             Msg,
+            Join,
         ];
     }
 

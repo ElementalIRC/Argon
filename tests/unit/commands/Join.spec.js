@@ -32,6 +32,6 @@ describe('Join', function() {
                 new IpcMock()
             );
             expect(join.run()).to.be.false;
-        })
+        });
     });
 });
